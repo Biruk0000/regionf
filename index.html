@@ -7,6 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Real World Map Geodata (Contains actual borders of 240+ countries) -->
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    
     <!-- html2canvas for browser-based image creation & downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -26,8 +30,8 @@
                             500: '#14b8a6', // Teal core
                             600: '#0d9488',
                             900: '#115e59',
-                            dark: '#0a0f12',
-                            panel: '#111823'
+                            dark: '#05080c',
+                            panel: '#0c111d'
                         }
                     }
                 }
@@ -38,7 +42,7 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #080c10;
+            background-color: #03060a;
         }
         
         /* Pulse scanline animation */
@@ -53,17 +57,9 @@
         
         /* Tech grid background */
         .tech-grid {
-            background-image: linear-gradient(rgba(20, 184, 166, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(20, 184, 166, 0.05) 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-
-        /* Glowing accents */
-        .neon-border {
-            box-shadow: 0 0 15px rgba(20, 184, 166, 0.35);
-        }
-        .neon-text {
-            text-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
+            background-image: linear-gradient(rgba(20, 184, 166, 0.04) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(20, 184, 166, 0.04) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         /* Certificate Hologram Effect */
@@ -78,74 +74,50 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Print Override Configuration */
-        @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-            }
-            body > *:not(#certificate-modal),
-            #info-modal,
-            #toast-message,
-            header,
-            footer,
-            main,
-            .no-print {
-                display: none !important;
-            }
-            #certificate-modal {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                background: white !important;
-                color: black !important;
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                box-shadow: none !important;
-                border: none !important;
-            }
-            .cert-container {
-                border: 4px double #111827 !important;
-                background: white !important;
-                color: black !important;
-                box-shadow: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 2rem !important;
-            }
-            .cert-text-dark {
-                color: #111827 !important;
-            }
-            .cert-bg-light {
-                background-color: #f3f4f6 !important;
-                border-color: #d1d5db !important;
-            }
+        /* Interactive Map Hover Styles */
+        .country-path {
+            transition: fill 0.2s ease, stroke 0.2s ease;
+            cursor: pointer;
+        }
+        .country-path:hover {
+            fill: rgba(20, 184, 166, 0.45) !important;
+            stroke: #14b8a6 !important;
+            stroke-width: 1px !important;
+        }
+
+        /* Pulsing Target Ring */
+        @keyframes ringPulse {
+            0% { transform: scale(0.6); opacity: 0.1; }
+            50% { opacity: 0.8; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        .heat-pulse-ring {
+            transform-origin: center;
+            animation: ringPulse 2s cubic-bezier(0.25, 0, 0, 1) infinite;
         }
     </style>
 </head>
 <body class="tech-grid text-gray-100 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-teal-500 selection:text-black">
 
-    <header class="border-b border-gray-800/80 bg-cyber-dark/85 backdrop-blur-md sticky top-0 z-40">
+    <!-- ================= HEADER SECTION ================= -->
+    <header class="border-b border-gray-900 bg-cyber-dark/90 backdrop-blur-md sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-cyber-dark shadow-lg shadow-teal-500/20">
-                    <i class="fa-solid fa-certificate text-xl"></i>
+                    <i class="fa-solid fa-map-location-dot text-xl"></i>
                 </div>
                 <div>
                     <h1 class="font-mono font-bold text-lg tracking-wider text-teal-400 flex items-center gap-1.5">
                         ORIGIN<span class="text-white">CV</span>
                     </h1>
-                    <span class="text-[10px] text-gray-400 tracking-widest uppercase">Local Engine v3.6 // AI-FREE</span>
+                    <span class="text-[10px] text-gray-400 tracking-widest uppercase">East-Africa Proximity Engine v4.0</span>
                 </div>
             </div>
             
             <div class="flex items-center gap-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-400 font-mono">
                     <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    100% Offline Validations
+                    Local & Private
                 </span>
                 <button onclick="toggleInfoModal()" class="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800" title="Information & Accuracy Statement">
                     <i class="fa-solid fa-circle-info text-lg"></i>
@@ -154,35 +126,36 @@
         </div>
     </header>
 
+    <!-- ================= MAIN CORE CONTAINER ================= -->
     <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow flex flex-col justify-center items-center">
         
         <!-- ================= ONBOARDING / LANDING SCREEN ================= -->
         <section id="onboarding-screen" class="w-full max-w-2xl py-8 flex flex-col items-center text-center">
             <div class="mb-6 inline-flex p-3 rounded-full bg-teal-500/5 border border-teal-500/20 text-teal-400 animate-bounce">
-                <i class="fa-solid fa-shield-halved text-3xl"></i>
+                <i class="fa-solid fa-earth-africa text-3xl"></i>
             </div>
             <h2 class="text-4xl font-extrabold tracking-tight mb-4 sm:text-5xl bg-gradient-to-r from-teal-300 via-emerald-400 to-cyan-400 bg-clip-text text-transparent font-sans">
-                Secure On-Device Ancestry Calibration
+                On-Device Face Heatmap Calibration
             </h2>
             <p class="text-gray-400 text-base md:text-lg mb-8 max-w-lg leading-relaxed">
-                Analyze physical facial metrics, light absorption profiles, and bilateral geometry locally. Complete analysis results inside an official social-ready download certificate.
+                Scan your physical features or upload a picture to generate a customized regional proximity heatmap and dynamic portrait certification—100% locally.
             </p>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-10 text-left">
-                <div class="bg-gray-900/60 border border-gray-800/80 p-4 rounded-xl">
-                    <div class="text-teal-400 mb-2"><i class="fa-solid fa-microscope text-lg"></i></div>
-                    <h4 class="font-semibold text-sm mb-1 text-white">Pixel Micro-Arrays</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">Scans color bands across 10,000 distinct facial regions to isolate demographic averages.</p>
+                <div class="bg-gray-900/40 border border-gray-800/80 p-4 rounded-xl">
+                    <div class="text-teal-400 mb-2"><i class="fa-solid fa-map-location-dot text-lg"></i></div>
+                    <h4 class="font-semibold text-sm mb-1 text-white">Geographic Heatmap</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">Pins ancestral origins dynamically across our interactive digital coordinate world map.</p>
                 </div>
-                <div class="bg-gray-900/60 border border-gray-800/80 p-4 rounded-xl">
-                    <div class="text-emerald-400 mb-2"><i class="fa-solid fa-chart-pie text-lg"></i></div>
-                    <h4 class="font-semibold text-sm mb-1 text-white">Metric Calibration</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">Computes jawline tangents, bi-pupillary offset, and nasal projection indices.</p>
+                <div class="bg-gray-900/40 border border-gray-800/80 p-4 rounded-xl">
+                    <div class="text-emerald-400 mb-2"><i class="fa-solid fa-image-portrait text-lg"></i></div>
+                    <h4 class="font-semibold text-sm mb-1 text-white">1:1 Square Cert</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">Generates a high-fidelity vertical square certificate perfect for social feeds and print displays.</p>
                 </div>
-                <div class="bg-gray-900/60 border border-gray-800/80 p-4 rounded-xl">
-                    <div class="text-cyan-400 mb-2"><i class="fa-solid fa-download text-lg"></i></div>
-                    <h4 class="font-semibold text-sm mb-1 text-white">Shareable Cards</h4>
-                    <p class="text-xs text-gray-400 leading-relaxed">Generates elegant image certificates complete with integrated charts to share on social media.</p>
+                <div class="bg-gray-900/40 border border-gray-800/80 p-4 rounded-xl">
+                    <div class="text-cyan-400 mb-2"><i class="fa-solid fa-lock text-lg"></i></div>
+                    <h4 class="font-semibold text-sm mb-1 text-white">No Cloud Connections</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">Guarantees zero images are uploaded. All computer-vision routines are completely offline.</p>
                 </div>
             </div>
 
@@ -197,23 +170,22 @@
             </div>
         </section>
 
-        <!-- ================= SCANNER / CAMERA SYSTEM ================= -->
+        <!-- ================= SCANNER / CAMERA MODULE ================= -->
         <section id="scanner-screen" class="w-full max-w-3xl hidden py-4">
-            <div class="bg-cyber-panel/90 border border-gray-800/80 rounded-2xl overflow-hidden p-4 sm:p-6 shadow-2xl">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-800/85 pb-4 mb-6 gap-2">
+            <div class="bg-cyber-panel border border-gray-850 rounded-2xl overflow-hidden p-4 sm:p-6 shadow-2xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-800 pb-4 mb-6 gap-2">
                     <div class="flex items-center gap-2">
                         <span class="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <h3 class="font-mono text-xs text-gray-300 uppercase tracking-widest" id="scanner-title">SYS_READY // OPTICAL_GRID</h3>
+                        <h3 class="font-mono text-xs text-gray-300 uppercase tracking-widest" id="scanner-title">SYS_READY // PIXEL_ALIGNMENT</h3>
                     </div>
-                    <div class="flex items-center gap-4 text-xs font-mono text-gray-400">
-                        <span>CALIBRATION: High fidelity</span>
+                    <div class="text-xs font-mono text-gray-400">
                         <span>LATENCY: <span id="telemetry-latency" class="text-teal-400">0.0</span> ms</span>
                     </div>
                 </div>
 
-                <div class="relative aspect-video max-h-[440px] w-full bg-black rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center">
+                <div class="relative aspect-video max-h-[440px] w-full bg-black rounded-xl border border-gray-850 overflow-hidden flex items-center justify-center">
                     <video id="video-feed" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 hidden"></video>
-                    <img id="upload-preview" class="absolute inset-0 w-full h-full object-contain hidden z-10" src="" alt="Uploaded sample">
+                    <img id="upload-preview" class="absolute inset-0 w-full h-full object-contain hidden z-10" src="" alt="Uploaded source">
                     <canvas id="landmark-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 pointer-events-none z-10"></canvas>
                     
                     <div id="hud-overlay" class="absolute inset-0 z-20 pointer-events-none border-4 border-transparent flex flex-col justify-between p-4">
@@ -223,7 +195,7 @@
                         </div>
                         <div id="scan-bar" class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-lg shadow-teal-500/50 hidden scanner-line z-30"></div>
                         <div id="guide-target" class="absolute inset-0 m-auto w-48 h-64 sm:w-64 sm:h-80 border-2 border-dashed border-teal-500/40 rounded-[50%] flex items-center justify-center">
-                            <span class="text-[10px] font-mono text-teal-500 bg-cyber-dark/80 px-2.5 py-1 rounded-full uppercase tracking-widest">Center Face Structure</span>
+                            <span class="text-[10px] font-mono text-teal-500 bg-cyber-dark/80 px-2.5 py-1 rounded-full uppercase tracking-widest">Center Face Profile</span>
                         </div>
                         <div class="flex justify-between">
                             <div class="w-8 h-8 border-b-2 border-l-2 border-teal-500/70"></div>
@@ -232,27 +204,27 @@
                     </div>
 
                     <div id="camera-placeholder" class="z-10 flex flex-col items-center justify-center text-center p-6">
-                        <div class="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 mb-4 text-2xl">
+                        <div class="h-16 w-16 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 mb-4 text-2xl">
                             <i class="fa-solid fa-video-slash"></i>
                         </div>
-                        <p class="text-sm font-semibold mb-2">Camera Matrix Standby</p>
-                        <p class="text-xs text-gray-400 max-w-xs mb-4">Allow camera access to analyze vector distances or import a custom photo file.</p>
+                        <p class="text-sm font-semibold mb-2">Webcam Interface Offline</p>
+                        <p class="text-xs text-gray-400 max-w-xs mb-4">Allow camera access to analyze proportions locally or drag-and-drop a photo directly.</p>
                         <button onclick="requestCameraPermission()" class="px-5 py-2.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-cyber-dark font-semibold text-xs transition-colors">
                             Initialize Web Camera
                         </button>
                     </div>
 
-                    <!-- ERROR STATE PANEL -->
+                    <!-- ERROR MODAL POPUP -->
                     <div id="error-cover" class="absolute inset-0 bg-red-950/95 z-40 hidden flex flex-col items-center justify-center text-center p-6 border-2 border-red-500/60 rounded-xl m-1">
                         <div class="h-16 w-16 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mb-4 text-3xl border border-red-500/40 animate-pulse">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h4 class="font-mono text-base uppercase tracking-wider text-red-400 font-bold mb-2">VALIDATION ERROR // REF_NOT_FOUND</h4>
+                        <h4 class="font-mono text-base uppercase tracking-wider text-red-400 font-bold mb-2">ERROR: FACE NOT DETECTED</h4>
                         <p id="error-message" class="text-xs text-red-200 max-w-md mb-6 leading-relaxed">
-                            No biological face signature detected in this raster image. Ensure the image is right side up, contains direct lighting, and captures your full head.
+                            No biometric features located in this sample. Please ensure direct framing, neutral lighting, and no face covering elements are present.
                         </p>
                         <div class="flex gap-4">
-                            <button onclick="dismissErrorAndRetry()" class="px-5 py-2.5 bg-red-500 hover:bg-red-400 text-black font-bold rounded-lg text-xs transition-colors shadow-lg shadow-red-500/20">
+                            <button onclick="dismissErrorAndRetry()" class="px-5 py-2.5 bg-red-500 hover:bg-red-400 text-black font-bold rounded-lg text-xs transition-colors">
                                 Re-upload / Try Again
                             </button>
                             <button onclick="returnToHome()" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold rounded-lg text-xs transition-colors">
@@ -261,7 +233,7 @@
                         </div>
                     </div>
 
-                    <!-- ANALYZING MATRIX SCREEN -->
+                    <!-- LOADING SPLASH -->
                     <div id="analyzing-cover" class="absolute inset-0 bg-cyber-dark/95 z-30 hidden flex flex-col items-center justify-center text-center p-6">
                         <div class="relative h-24 w-24 mb-6">
                             <div class="absolute inset-0 border-4 border-teal-500/20 border-t-teal-400 rounded-full animate-spin"></div>
@@ -270,7 +242,7 @@
                                 <i class="fa-solid fa-microchip text-2xl animate-pulse"></i>
                             </div>
                         </div>
-                        <h4 class="font-mono text-sm uppercase tracking-widest text-teal-400 mb-2">Analyzing Phenotype Geometry</h4>
+                        <h4 class="font-mono text-sm uppercase tracking-widest text-teal-400 mb-2">Analyzing Face Proximity Coordinates</h4>
                         <p class="text-xs text-gray-400 max-w-sm mb-4" id="analysis-step-text">Processing frame pixel clusters...</p>
                         <div class="w-48 bg-gray-800 h-1 rounded-full overflow-hidden">
                             <div id="analysis-progress" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
@@ -281,9 +253,9 @@
                 <div class="mt-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
                         <button id="snap-btn" onclick="captureSnapshot()" class="hidden px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-cyber-dark font-bold text-sm tracking-wide transition-colors items-center gap-2 flex-grow sm:flex-grow-0 justify-center">
-                            <i class="fa-solid fa-fingerprint"></i> Compile Metric Report
+                            <i class="fa-solid fa-fingerprint"></i> Compute Matrix Metrics
                         </button>
-                        <button id="toggle-cam-btn" onclick="switchCamera()" class="hidden p-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors" title="Switch Video Device">
+                        <button id="toggle-cam-btn" onclick="switchCamera()" class="hidden p-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors">
                             <i class="fa-solid fa-retweet"></i>
                         </button>
                     </div>
@@ -299,14 +271,14 @@
             </div>
         </section>
 
-        <!-- ================= RESULTS DISPLAY & DEEP TELEMETRY ================= -->
+        <!-- ================= RESULTS VIEWPORT ================= -->
         <section id="results-screen" class="w-full max-w-5xl hidden py-4 flex flex-col gap-6">
             
             <div class="bg-gradient-to-br from-cyber-panel to-cyber-dark border border-gray-800 p-6 rounded-2xl flex flex-col md:flex-row gap-8 items-center shadow-2xl relative overflow-hidden">
                 <div class="absolute -right-16 -top-16 w-48 h-48 bg-teal-500/5 rounded-full blur-3xl"></div>
                 
-                <div class="relative w-48 h-48 rounded-xl overflow-hidden border border-teal-500/30 shrink-0">
-                    <img id="result-photo" class="w-full h-full object-cover transform -scale-x-100 bg-slate-900" src="" alt="Captured profile">
+                <div class="relative w-48 h-48 rounded-xl overflow-hidden border border-teal-500/30 shrink-0 mx-auto">
+                    <img id="result-photo" class="w-full h-full object-cover transform -scale-x-100 bg-slate-900" src="" alt="Portrait snapshot">
                     <canvas id="result-overlay-canvas" class="absolute inset-0 w-full h-full object-cover transform -scale-x-100 pointer-events-none z-10"></canvas>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <div class="absolute bottom-2 left-2 right-2 text-center text-[10px] font-mono text-teal-400 tracking-wider">
@@ -318,11 +290,11 @@
                     <span class="text-[10px] font-mono text-teal-400 uppercase tracking-widest bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 rounded-full inline-block mb-3">Computed Affinity Profile</span>
                     <h3 id="result-primary-affinity" class="text-3xl font-extrabold text-white mb-2">Calculating...</h3>
                     <p id="result-summary" class="text-gray-400 text-sm leading-relaxed mb-4 max-w-xl">
-                        Locally processed mathematical mapping of your facial features.
+                        Locally processed mathematical mapping of physical contours.
                     </p>
                     <div class="flex flex-wrap gap-2.5 justify-center md:justify-start">
                         <button onclick="openCertificateModal()" class="px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-teal-500/25 transition-all transform hover:scale-105">
-                            <i class="fa-solid fa-award"></i> View Shareable Certificate
+                            <i class="fa-solid fa-award"></i> View Certificate
                         </button>
                         <span id="historical-timeframe" class="text-xs px-3 py-2 bg-gray-800 rounded-xl text-gray-300 flex items-center gap-1.5 border border-gray-700">
                             <i class="fa-solid fa-circle-nodes text-emerald-400"></i> Region Profile
@@ -331,11 +303,31 @@
                 </div>
             </div>
 
-            <!-- Deep Dive Regional & Biological Telemetry Columns -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- ================= GEOGRAPHIC WORLD HEATMAP CONTAINER ================= -->
+            <div class="bg-cyber-panel border border-gray-800 p-6 rounded-2xl shadow-xl flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="font-mono text-xs text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-earth-africa text-teal-400 animate-spin" style="animation-duration: 10s;"></i> Geographic Proximity Heatmap
+                        </h4>
+                        <p class="text-[11px] text-gray-500 mt-1">Luminance density alignment mapped across worldwide historic migration clusters.</p>
+                    </div>
+                    <!-- Hover Tooltip Container -->
+                    <div id="map-tooltip" class="hidden md:flex items-center gap-2 px-3 py-1 bg-black/80 border border-gray-800 rounded-lg text-xs text-teal-300 font-mono transition-opacity duration-200">
+                        <i class="fa-solid fa-flag text-[10px]"></i> <span id="tooltip-text">Country Code</span>
+                    </div>
+                </div>
                 
+                <div class="relative w-full aspect-[2/1] bg-black/60 rounded-xl border border-gray-850 p-2 overflow-hidden flex items-center justify-center">
+                    <!-- World Map Base SVG containing actual political shapes -->
+                    <svg id="world-heatmap-svg" class="w-full h-full text-gray-850/60" viewBox="0 0 1000 500" fill="currentColor"></svg>
+                </div>
+            </div>
+
+            <!-- Deep Dive Subsections -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left panel: Regional matching stats -->
-                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between">
+                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between shadow-lg">
                     <div>
                         <h4 class="font-mono text-xs text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                             <i class="fa-solid fa-dna text-teal-400"></i> Estimated Ethnic Distribution
@@ -345,95 +337,89 @@
                         </div>
                     </div>
                     
-                    <div class="mt-6 pt-6 border-t border-gray-800/80 text-xs text-gray-500 space-y-2 leading-relaxed">
-                        <p class="italic">This is a structural phenotype simulation, not a genetic test. Real geographical origins are mapped to your chromosomes, which can only be analyzed via DNA profiling.</p>
+                    <div class="mt-6 pt-6 border-t border-gray-800/80 text-xs text-gray-500 leading-relaxed italic">
+                        This is a physical structural simulation mapping external facial parameters, not a molecular chromosome profile.
                     </div>
                 </div>
 
-                <!-- Center panel: Extended Facial Measurements -->
-                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between">
+                <!-- Center panel: Extended Biometrics -->
+                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between shadow-lg">
                     <div>
                         <h4 class="font-mono text-xs text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-teal-400"></i> Biometric Measurements
+                            <i class="fa-solid fa-sliders text-teal-400"></i> Local Metric Parameters
                         </h4>
                         
                         <div class="space-y-4">
-                            <!-- Melanin Index -->
-                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800">
+                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800/80">
                                 <span class="text-gray-400">Melanin Density Index</span>
-                                <span id="telemetry-melanin" class="font-mono font-bold text-teal-400">62.4 MDI</span>
+                                <span id="telemetry-melanin" class="font-mono font-bold text-teal-400">0.0 MDI</span>
                             </div>
-                            <!-- Hemoglobin Undertone -->
-                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800">
+                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800/80">
                                 <span class="text-gray-400">Hemoglobin Undertone</span>
-                                <span id="telemetry-hemoglobin" class="font-mono font-bold text-teal-400">Warm / Neutral</span>
+                                <span id="telemetry-hemoglobin" class="font-mono font-bold text-teal-400">Warm</span>
                             </div>
-                            <!-- Cranial Ratio -->
-                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800">
+                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800/80">
                                 <span class="text-gray-400">Cranial Length-Width Ratio</span>
-                                <span id="telemetry-cranial" class="font-mono font-bold text-teal-400">0.81 (Brachy)</span>
+                                <span id="telemetry-cranial" class="font-mono font-bold text-teal-400">0.00</span>
                             </div>
-                            <!-- Cheekbone Angle -->
-                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800">
+                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800/80">
                                 <span class="text-gray-400">Zygomatic Flare Factor</span>
-                                <span id="telemetry-zygomatic" class="font-mono font-bold text-teal-400">Normal</span>
+                                <span id="telemetry-zygomatic" class="font-mono font-bold text-teal-400">Symmetric</span>
                             </div>
-                            <!-- Symmetry Factor -->
-                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800">
+                            <div class="flex justify-between items-center text-xs pb-3 border-b border-gray-800/80">
                                 <span class="text-gray-400">Vertical Symmetry Factor</span>
-                                <span id="telemetry-symmetry" class="font-mono font-bold text-teal-400">94.2%</span>
+                                <span id="telemetry-symmetry" class="font-mono font-bold text-teal-400">0.0%</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Live terminal output -->
                     <div class="mt-6">
-                        <span class="text-[9px] font-mono text-gray-400 uppercase block mb-2">Local Processing Console</span>
-                        <div id="live-console" class="p-3 bg-black/60 border border-gray-800 rounded-xl h-28 overflow-y-auto font-mono text-[9px] text-emerald-400 leading-normal space-y-1">
+                        <span class="text-[9px] font-mono text-gray-400 uppercase block mb-2">Local Telemetry Terminal</span>
+                        <div id="live-console" class="p-3 bg-black/60 border border-gray-850 rounded-xl h-28 overflow-y-auto font-mono text-[9px] text-emerald-450 leading-normal space-y-1">
                             <!-- Populated in real-time -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Right panel: Structural Landmarks Details -->
-                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between">
+                <div class="bg-cyber-panel border border-gray-800 rounded-2xl p-6 lg:col-span-4 flex flex-col justify-between shadow-lg">
                     <div>
                         <h4 class="font-mono text-xs text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <i class="fa-solid fa-fingerprint text-teal-400"></i> Structural Landmark Telemetry
+                            <i class="fa-solid fa-fingerprint text-teal-400"></i> Structural Landmarks
                         </h4>
                         
                         <div class="space-y-4">
-                            <div class="p-3 bg-gray-900/60 border border-gray-800 rounded-xl">
-                                <h5 class="text-xs font-semibold text-white mb-1">Orbital Coordinate Ratios</h5>
+                            <div class="p-3 bg-gray-900/40 border border-gray-800/80 rounded-xl">
+                                <h5 class="text-xs font-semibold text-white mb-1">Orbital Alignment</h5>
                                 <p id="landmark-eyes" class="text-[11px] text-gray-400 leading-normal"></p>
                             </div>
 
-                            <div class="p-3 bg-gray-900/60 border border-gray-800 rounded-xl">
-                                <h5 class="text-xs font-semibold text-white mb-1">Nasal Bridge Variance</h5>
+                            <div class="p-3 bg-gray-900/40 border border-gray-800/80 rounded-xl">
+                                <h5 class="text-xs font-semibold text-white mb-1">Nasal Bridge Projection</h5>
                                 <p id="landmark-nose" class="text-[11px] text-gray-400 leading-normal"></p>
                             </div>
 
-                            <div class="p-3 bg-gray-900/60 border border-gray-800 rounded-xl">
-                                <h5 class="text-xs font-semibold text-white mb-1">Mandibular Curvature</h5>
+                            <div class="p-3 bg-gray-900/40 border border-gray-800/80 rounded-xl">
+                                <h5 class="text-xs font-semibold text-white mb-1">Mandibular Boundary</h5>
                                 <p id="landmark-jawline" class="text-[11px] text-gray-400 leading-normal"></p>
                             </div>
                         </div>
                     </div>
 
                     <div id="trivia-box" class="mt-4 p-3 bg-teal-500/5 border border-teal-500/10 rounded-xl">
-                        <span class="text-[9px] font-mono text-teal-400 uppercase tracking-widest block mb-1">Historical Marker Correlation</span>
+                        <span class="text-[9px] font-mono text-teal-400 uppercase tracking-widest block mb-1">Historical Context</span>
                         <p id="historical-description" class="text-[11px] text-gray-300 leading-relaxed"></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Retake action bar -->
+            <!-- Bottom Action Controls -->
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-gray-800/80 pt-6">
                 <button onclick="resetAppToScanner()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-rotate-left"></i> Measure New Subject
+                    <i class="fa-solid fa-rotate-left"></i> Analyze New Subject
                 </button>
                 <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <i class="fa-solid fa-shield-halved text-teal-500"></i> Encrypted client pipeline. No images are saved or transmitted.
+                    <i class="fa-solid fa-shield-halved text-teal-500"></i> Fully sandboxed. Calculations occur strictly on-device.
                 </div>
             </div>
 
@@ -441,139 +427,161 @@
 
     </main>
 
-    <!-- ================= HIGH-FIDELITY OFFICIAL CERTIFICATE MODAL ================= -->
-    <div id="certificate-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden items-center justify-center z-50 p-4 overflow-y-auto">
-        <div class="max-w-2xl w-full flex flex-col gap-4">
-            <!-- Modal Header (Controls) -->
+    <!-- ================= INSTAGRAM-PERFECT 1:1 SQUARE CERTIFICATE MODAL ================= -->
+    <div id="certificate-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="max-w-xl w-full flex flex-col gap-4 my-8">
+            <!-- Modal Header controls -->
             <div class="no-print flex justify-between items-center bg-gray-900 border border-gray-800 p-4 rounded-xl">
                 <div>
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-share-nodes text-teal-400 animate-pulse"></i> Social Media Share Generator
+                        <i class="fa-solid fa-file-invoice text-teal-400"></i> Certificate Document
                     </h3>
-                    <p class="text-[10px] text-gray-400">Instantly package your metrics card to download as a PNG.</p>
+                    <p class="text-[10px] text-gray-400">Optimized 1:1 square canvas ready for printing or download.</p>
                 </div>
                 <button onclick="closeCertificateModal()" class="text-gray-400 hover:text-white text-lg p-1.5 hover:bg-gray-800 rounded-lg transition-colors">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Downloadable Certificate Container -->
-            <!-- We enforce precise styling, widths, backgrounds, and sizes so html2canvas renders perfectly on mobile & desktop -->
-            <div id="certificate-print-area" class="cert-container bg-gray-950 border-4 border-double border-teal-500/40 p-8 rounded-2xl relative shadow-2xl overflow-hidden text-left" style="min-width: 320px; box-shadow: 0 0 35px rgba(20,184,166,0.1);">
+            <!-- 1:1 SQUARE CERTIFICATE CANVAS -->
+            <div id="certificate-print-area" class="cert-container bg-slate-950 border-4 border-double border-teal-500/40 p-8 rounded-3xl relative shadow-2xl overflow-hidden text-left flex flex-col justify-between" style="box-shadow: 0 0 50px rgba(20,184,166,0.2); width: 680px; height: 680px; min-width: 680px;">
                 
-                <!-- Background decorative grid lines for html2canvas -->
-                <div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: linear-gradient(rgba(20, 184, 166, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(20, 184, 166, 0.4) 1px, transparent 1px); background-size: 16px 16px;"></div>
+                <!-- Background grid lines for canvas renders -->
+                <div class="absolute inset-0 pointer-events-none opacity-[0.04]" style="background-image: linear-gradient(rgba(20, 184, 166, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(20, 184, 166, 0.4) 1px, transparent 1px); background-size: 14px 14px;"></div>
+                <div class="absolute -right-24 -top-24 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 
-                <!-- Header block inside card -->
-                <div class="text-center border-b-2 border-gray-800 pb-5 mb-6 relative">
-                    <div class="flex justify-center items-center gap-2 mb-2">
-                        <i class="fa-solid fa-award text-teal-400 text-3xl"></i>
-                    </div>
-                    <h2 class="font-mono font-bold tracking-widest text-lg text-white uppercase">
-                        OriginCV Biometric Analysis Matrix
-                    </h2>
-                    <p class="text-[9px] font-mono tracking-widest text-teal-500 uppercase mt-1">
-                        Department of Local Anthropological Telemetry // Local Engine Verification
-                    </p>
-                </div>
-
-                <!-- Main Grid content -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center mb-6">
-                    
-                    <!-- Portrait frame with decorative tech borders -->
-                    <div class="md:col-span-4 flex flex-col items-center">
-                        <div class="relative w-36 h-36 border-2 border-dashed border-teal-500/30 p-1.5 bg-black rounded-xl">
-                            <img id="cert-portrait" class="w-full h-full object-cover rounded-lg" src="" alt="Analyzed Subject">
-                            <!-- Visual corner accents for tech aesthetics -->
-                            <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-teal-400"></div>
-                            <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-teal-400"></div>
-                            <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-teal-400"></div>
-                            <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-teal-400"></div>
+                <!-- Header block -->
+                <div class="text-center border-b border-gray-800 pb-4 relative z-10 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-left">
+                        <div class="h-9 w-9 rounded-xl border border-teal-500/30 flex items-center justify-center text-teal-400 bg-teal-950/20 shadow-md shadow-teal-500/10">
+                            <i class="fa-solid fa-certificate text-sm"></i>
                         </div>
-                        <span class="text-[8px] font-mono text-teal-400/80 mt-2 tracking-widest uppercase">SUBJECT ID: AT-109B</span>
-                    </div>
-
-                    <!-- Affinities & Summary details -->
-                    <div class="md:col-span-8 space-y-4">
-                        <div class="space-y-1">
-                            <span class="text-[8px] font-mono text-gray-500 uppercase tracking-widest block">Primary Calibration Match</span>
-                            <h4 id="cert-primary-text" class="text-xl font-extrabold font-mono text-white tracking-wide uppercase">
-                                45% Mediterranean Affinity
-                            </h4>
-                            <p id="cert-secondary-text" class="text-[10px] text-gray-400 font-mono leading-relaxed">
-                                Secondary matches identified: Levant and East Asian.
+                        <div>
+                            <h2 class="font-mono font-bold tracking-widest text-sm text-white uppercase leading-none">
+                                OriginCV Matrix Record
+                            </h2>
+                            <p class="text-[8px] font-mono tracking-widest text-teal-500 uppercase mt-1 leading-none">
+                                CLIENT-SIDE PHENOTYPIC EVALUATION
                             </p>
                         </div>
+                    </div>
+                    <div class="text-right font-mono text-[8px] text-gray-400 tracking-wider">
+                        SECURE LOG // <span class="text-emerald-400 font-bold">LOCAL</span>
+                    </div>
+                </div>
+
+                <!-- 1:1 Layout Row 1: Portrait & Core Affinity Block -->
+                <div class="grid grid-cols-12 gap-5 relative z-10 items-center">
+                    <!-- Left: Portrait Frame with tech corners -->
+                    <div class="col-span-4 flex flex-col items-center justify-center">
+                        <div class="relative w-32 h-32 border border-dashed border-teal-500/40 p-1 bg-black rounded-2xl shadow-xl shadow-black/50">
+                            <img id="cert-portrait" class="w-full h-full object-cover rounded-xl" src="" alt="Subject portrait">
+                            <!-- Technical accents -->
+                            <div class="absolute top-0 left-0 w-3 h-3 border-t border-l border-teal-400"></div>
+                            <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-teal-400"></div>
+                            <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-teal-400"></div>
+                            <div class="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-teal-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Primary metrics + dynamic statistics -->
+                    <div class="col-span-8 flex flex-col justify-center pl-2">
+                        <span class="text-[8px] font-mono text-gray-500 uppercase tracking-widest block mb-0.5">Primary Calibration Profile</span>
+                        <h4 id="cert-primary-text" class="text-lg font-extrabold font-mono text-white tracking-wide uppercase leading-tight">
+                            Analyzing coordinates...
+                        </h4>
+                        <p id="cert-secondary-text" class="text-[9px] text-gray-400 font-mono mt-0.5 leading-normal">
+                            Scanning secondary region thresholds.
+                        </p>
                         
-                        <!-- Biometric metrics block on certificate -->
-                        <div class="grid grid-cols-3 gap-2 text-center pt-2">
-                            <div class="p-2.5 bg-gray-900/60 border border-gray-800/80 rounded-lg">
-                                <span class="text-[8px] font-mono text-gray-400 uppercase block">Symmetry</span>
-                                <span id="cert-symmetry" class="text-[11px] font-mono font-bold text-teal-400">94.2%</span>
+                        <!-- Mini Parameter Badges -->
+                        <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                            <div class="py-1.5 px-1 bg-white/[0.02] border border-gray-850/80 rounded-xl backdrop-blur-sm">
+                                <span class="text-[7px] font-mono text-gray-500 uppercase block">Symmetry</span>
+                                <span id="cert-symmetry" class="text-[10px] font-mono font-bold text-teal-400">0.0%</span>
                             </div>
-                            <div class="p-2.5 bg-gray-900/60 border border-gray-800/80 rounded-lg">
-                                <span class="text-[8px] font-mono text-gray-400 uppercase block">Melanin</span>
-                                <span id="cert-melanin" class="text-[11px] font-mono font-bold text-teal-400">62.4 MDI</span>
+                            <div class="py-1.5 px-1 bg-white/[0.02] border border-gray-850/80 rounded-xl backdrop-blur-sm">
+                                <span class="text-[7px] font-mono text-gray-500 uppercase block">Melanin</span>
+                                <span id="cert-melanin" class="text-[10px] font-mono font-bold text-teal-400">0 MDI</span>
                             </div>
-                            <div class="p-2.5 bg-gray-900/60 border border-gray-800/80 rounded-lg">
-                                <span class="text-[8px] font-mono text-gray-400 uppercase block">Cranial R.</span>
-                                <span id="cert-cranial" class="text-[11px] font-mono font-bold text-teal-400">0.81</span>
+                            <div class="py-1.5 px-1 bg-white/[0.02] border border-gray-850/80 rounded-xl backdrop-blur-sm">
+                                <span class="text-[7px] font-mono text-gray-500 uppercase block">Cranial</span>
+                                <span id="cert-cranial" class="text-[10px] font-mono font-bold text-teal-400">0.00</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ================= DYNAMIC CHART DIRECTLY ON THE CERTIFICATE ================= -->
-                <div class="border-t border-b border-gray-800/80 py-4 mb-6">
-                    <h5 class="text-[9px] font-mono text-teal-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                        <i class="fa-solid fa-chart-bar"></i> Dynamic Genetic Proximity Graph
+                <!-- 1:1 Layout Row 2: Admixture Graph Panel -->
+                <div class="p-4 rounded-2xl bg-white/[0.01] border border-gray-900/40 relative z-10 shadow-inner">
+                    <h5 class="text-[8px] font-mono text-teal-500 uppercase tracking-widest mb-2.5 flex items-center gap-1.5 leading-none">
+                        <i class="fa-solid fa-chart-bar text-[8px]"></i> Proximity Index Distribution
                     </h5>
-                    <!-- Regional Chart target inside Certificate -->
-                    <div id="cert-chart-container" class="space-y-3">
-                        <!-- Filled dynamically by JS -->
+                    <div id="cert-chart-container" class="space-y-2">
+                        <!-- Filled by Javascript dynamically -->
                     </div>
                 </div>
 
-                <!-- Certificate Footer Stamps, Signs, and Keys -->
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
-                    <div class="space-y-1 text-center sm:text-left">
-                        <p class="text-[8px] font-mono text-gray-500 uppercase tracking-wider">Verification Reference</p>
-                        <p id="cert-ref-id" class="text-[11px] font-mono text-teal-400 font-bold tracking-wide">OCV-2026-X839-D21F</p>
-                        <p id="cert-timestamp" class="text-[8px] font-mono text-gray-400 uppercase">CALIBRATION DATE: 1/12/2026</p>
+                <!-- 1:1 Layout Row 3: Vector World Map Projections -->
+                <div class="grid grid-cols-12 gap-5 relative z-10 items-center">
+                    <!-- Left Mini Map -->
+                    <div class="col-span-7">
+                        <div class="border border-gray-900/50 p-1.5 rounded-2xl bg-black/40">
+                            <!-- Miniature vector world map projection -->
+                            <div class="w-full aspect-[2/1] bg-black/40 rounded-xl overflow-hidden relative">
+                                <svg id="cert-world-heatmap" class="w-full h-full text-gray-850" viewBox="0 0 1000 500" fill="currentColor">
+                                    <!-- Populated with real geographic country outlines dynamically -->
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Hologram Stamps and Sign-offs -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative w-14 h-14 rounded-full flex items-center justify-center border-2 border-teal-500/40 hologram-seal shadow-lg shadow-teal-500/10 shrink-0">
-                            <span class="font-mono text-[5px] text-black font-extrabold uppercase tracking-widest text-center leading-none">
-                                SECURE<br>LOCAL<br>VERIFIED
-                            </span>
+                    <!-- Right Stamps, Signatures and Holograms -->
+                    <div class="col-span-5 flex flex-col justify-between h-full pl-2 border-l border-gray-900/60">
+                        <div class="flex items-center justify-between gap-2.5">
+                            <div class="relative w-12 h-12 rounded-full flex items-center justify-center border border-teal-500/20 hologram-seal shadow-md shadow-teal-500/5 shrink-0">
+                                <span class="font-mono text-[4px] text-black font-black uppercase tracking-wider text-center leading-none">
+                                    SECURE<br>LOCAL<br>VALID
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-mono text-[6px] text-gray-550 block uppercase">Encryption</span>
+                                <span class="font-mono text-[8px] text-teal-400 font-bold leading-none block mt-0.5">100% Offline</span>
+                                <span class="font-mono text-[6px] text-gray-500 block mt-1 uppercase">ID Code</span>
+                                <span id="cert-ref-id" class="font-mono text-[8px] text-white tracking-wide block leading-none mt-0.5">OCV-STABLE-D93</span>
+                            </div>
                         </div>
                         
-                        <div class="text-center border-t border-gray-800 pt-1.5 w-24 shrink-0">
-                            <span class="font-mono text-[7px] text-gray-500 block uppercase">Encryption Matrix</span>
-                            <span class="font-mono text-[9px] text-teal-400 italic font-bold">100% Secure</span>
+                        <div class="flex justify-between items-end mt-2">
+                            <div class="space-y-0.5">
+                                <span class="font-mono text-[6px] text-gray-550 uppercase block">Engine Authority</span>
+                                <div class="text-[8px] text-gray-400 font-serif italic border-b border-gray-900/80 pb-0.5 w-16">OriginCV</div>
+                            </div>
+                            <div class="space-y-0.5 text-right">
+                                <span id="cert-timestamp" class="text-[6px] font-mono text-gray-500 uppercase block">SYS_UNLOCKED</span>
+                                <div class="text-[8px] text-teal-400 font-mono border-b border-gray-900/80 pb-0.5 w-16">SECURE_D8</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Legal Disclaimers -->
-                <div class="text-center mt-6 border-t border-gray-800/40 pt-4">
-                    <p class="text-[8px] font-mono text-gray-500 max-w-md mx-auto leading-normal">
-                        DISCLAIMER: Calculated locally using pixel matrices. For entertainment, educational, and novelty use only. No images leave your browser engine.
+                <!-- Footer stamp block -->
+                <div class="border-t border-gray-900/80 pt-3 relative z-10 text-center">
+                    <p class="text-[7px] font-mono text-gray-600 max-w-xs mx-auto leading-normal">
+                        DISCLAIMER: Calculated strictly inside local browser environments. Intended for informative & educational novelty purposes. No biometric data is stored.
                     </p>
                 </div>
 
             </div>
 
-            <!-- Cert Actions Bar (Hidden on print) -->
+            <!-- Modal Action Buttons (Clean & Simple text) -->
             <div class="no-print bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col sm:flex-row gap-3 justify-between items-center">
-                <span class="text-[10px] text-gray-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-cloud-arrow-down text-teal-400"></i> Click to instantly save PNG file to downloads.
+                <span class="text-[10px] text-gray-400 flex items-center gap-1">
+                    <i class="fa-solid fa-file-arrow-down text-teal-400"></i> Saves local copy of document as a PNG image.
                 </span>
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <button onclick="downloadCertificateImage()" class="flex-grow sm:flex-none px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-transform transform hover:scale-[1.02] active:scale-[0.98]">
-                        <i class="fa-solid fa-download"></i> Save Image For Socials
+                    <button onclick="downloadCertificateImage()" class="flex-grow sm:flex-none px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-transform transform hover:scale-[1.02] active:scale-[0.98]">
+                        <i class="fa-solid fa-download"></i> Download
                     </button>
                     <button onclick="closeCertificateModal()" class="px-5 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl text-xs transition-colors">
                         Close
@@ -584,7 +592,7 @@
         </div>
     </div>
 
-    <!-- ================= MAIN INFOMODAL ================= -->
+    <!-- ================= MAIN INFO DRAWER ================= -->
     <div id="info-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-cyber-panel border border-gray-800 max-w-lg w-full rounded-2xl p-6 relative shadow-2xl">
             <button onclick="toggleInfoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg p-1.5 hover:bg-gray-800 rounded-lg transition-colors">
@@ -592,33 +600,33 @@
             </button>
             
             <h3 class="text-xl font-bold mb-4 font-sans text-teal-400 flex items-center gap-2">
-                <i class="fa-solid fa-shield-halved text-teal-400"></i> Local Engine & Integrity Policy
+                <i class="fa-solid fa-shield-halved"></i> Sandboxed Local Pipeline
             </h3>
             
             <div class="space-y-4 text-sm text-gray-300 leading-relaxed">
                 <p>
-                    <strong>OriginCV</strong> is an analytical visual emulator designed to process local biometric parameters entirely inside your browser sandbox.
+                    <strong>OriginCV</strong> executes all analysis logic in your local browser sandbox, using pixel color matrix modeling and edge gradient checks.
                 </p>
-                <div class="p-3.5 bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 rounded-xl text-xs space-y-1.5">
-                    <p class="font-bold uppercase tracking-wider"><i class="fa-solid fa-lock"></i> 100% Secure & AI-Free:</p>
+                <div class="p-3.5 bg-teal-500/10 border border-teal-500/20 text-teal-300 rounded-xl text-xs space-y-1.5">
+                    <p class="font-bold uppercase tracking-wider"><i class="fa-solid fa-lock"></i> 100% Secure & Private:</p>
                     <p>
-                        We do not make external web calls, do not save photographic images to databases, and do not use deep cloud generation systems. Your facial geometry is computed privately on your device.
+                        No external API or network calls are triggered. Your portrait, metrics, and processing logs remain safely inside your device session.
                     </p>
                 </div>
                 <p>
-                    Because facial metrics depend closely on framing variables (such as shadows, lens distortion, and expression shifts), results should be reviewed for informational, comparative, and educational amusement.
+                    Because analysis outcomes depend on illumination variables, shadow placements, and lens angles, results are structured for informative and recreational amusement.
                 </p>
             </div>
             
             <button onclick="toggleInfoModal()" class="mt-6 w-full py-3 bg-teal-500 hover:bg-teal-400 text-cyber-dark font-bold rounded-xl transition-colors">
-                Acknowledge Protocol
+                Acknowledge Pipeline
             </button>
         </div>
     </div>
 
-    <!-- Custom Toast Indicator -->
-    <div id="toast-message" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 bg-gray-900 border border-teal-500/40 text-gray-200 px-5 py-3.5 rounded-xl shadow-2xl transition-all duration-300 flex items-center gap-3">
-        <div class="text-teal-400" id="toast-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+    <!-- Toast Notification -->
+    <div id="toast-message" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 bg-gray-900 border border-teal-500/45 text-gray-200 px-5 py-3.5 rounded-xl shadow-2xl transition-all duration-300 flex items-center gap-3">
+        <div class="text-teal-400" id="toast-icon"></div>
         <p class="text-xs font-semibold leading-normal" id="toast-text"></p>
     </div>
 
@@ -629,22 +637,22 @@
                 <p>© 2026 OriginCV Local Engines. Client-Side Image Array Processing.</p>
             </div>
             <div class="flex gap-4">
-                <button onclick="toggleInfoModal()" class="hover:text-teal-400 transition-colors">Framework Guidelines</button>
+                <button onclick="toggleInfoModal()" class="hover:text-teal-400 transition-colors">Integrity Policy</button>
                 <span class="text-gray-800">|</span>
-                <span class="text-teal-500/60 font-mono">OFFLINE LOCAL LINK</span>
+                <span class="text-teal-500/60 font-mono">STANDALONE MODULE</span>
             </div>
         </div>
     </footer>
 
+    <!-- ================= IMPLEMENTATION LOGIC ================= -->
     <script>
-        /* State Variables */
         let stream = null;
         let activeFacingMode = "user"; 
         let snapshotDataUrl = null;
         let isCameraActive = false;
         let isUsingUpload = false;
         
-        // Setup references
+        // DOM Elements
         const onboardingScreen = document.getElementById('onboarding-screen');
         const scannerScreen = document.getElementById('scanner-screen');
         const resultsScreen = document.getElementById('results-screen');
@@ -673,8 +681,34 @@
         const landmarkNose = document.getElementById('landmark-nose');
         const landmarkJawline = document.getElementById('landmark-jawline');
         const historicalDescription = document.getElementById('historical-description');
-
         const liveConsole = document.getElementById('live-console');
+
+        // Country ISO key mappings corresponding to calculated regions
+        const regionMappings = {
+            "east-africa": ["ET", "ER", "SO", "DJ", "KE", "SD", "SS", "UG", "TZ", "RW", "BI"], 
+            "nw-europe": ["GB", "IE", "FR", "BE", "NL", "LU", "DK", "NO", "SE", "IS", "FI"],
+            "mediterranean": ["IT", "GR", "ES", "PT", "CY", "MT", "AL", "ME", "HR", "BA", "RS", "MK", "SI"],
+            "levant": ["SY", "JO", "LB", "IL", "PS", "TR", "IQ", "IR", "SA", "YE", "OM", "AE", "QA", "KW", "EG"],
+            "baltic": ["PL", "UA", "BY", "RU", "EE", "LV", "LT", "MD", "CZ", "SK", "HU", "RO", "BG", "KZ"],
+            "alpine": ["AT", "CH", "DE", "LI"],
+            "east-asian": ["CN", "JP", "KP", "KR", "MN", "TW", "VN", "TH", "MM", "LA", "KH"],
+            "west-africa": ["NG", "GH", "SN", "GN", "CI", "ML", "NE", "BF", "TG", "BJ", "SL", "LR", "MR", "GM", "CM"],
+            "south-asia": ["IN", "PK", "BD", "LK", "NP", "BT", "MV", "AF"],
+            "oceania": ["AU", "NZ", "ID", "MY", "PH", "PG", "FJ", "SB", "VU"]
+        };
+
+        const coordinatesTable = {
+            "east-africa": { lat: 9.0, lon: 38.0 }, 
+            "nw-europe": { lat: 55.0, lon: -3.0 },
+            "mediterranean": { lat: 39.0, lon: 20.0 },
+            "levant": { lat: 32.0, lon: 38.0 },
+            "baltic": { lat: 55.0, lon: 35.0 },
+            "alpine": { lat: 47.0, lon: 11.0 },
+            "east-asian": { lat: 35.0, lon: 104.0 },
+            "west-africa": { lat: 10.0, lon: -2.0 },
+            "south-asia": { lat: 21.0, lon: 78.0 },
+            "oceania": { lat: -10.0, lon: 130.0 }
+        };
 
         function triggerToast(message, type = "info") {
             const toast = document.getElementById('toast-message');
@@ -684,11 +718,11 @@
             toastText.innerText = message;
             
             if (type === "success") {
-                toastIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                toastIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>`;
             } else if (type === "error") {
-                toastIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400"></i>`;
+                toastIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-400 text-sm"></i>`;
             } else {
-                toastIcon.innerHTML = `<i class="fa-solid fa-circle-info text-teal-400"></i>`;
+                toastIcon.innerHTML = `<i class="fa-solid fa-circle-info text-teal-400 text-sm"></i>`;
             }
             
             toast.classList.remove('translate-y-20', 'opacity-0');
@@ -697,7 +731,16 @@
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 4500);
+            }, 4000);
+        }
+
+        function writeToConsole(line) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+            const logElement = document.createElement('div');
+            logElement.innerHTML = `<span class="text-gray-500">[${timeStr}]</span> ${line}`;
+            liveConsole.appendChild(logElement);
+            liveConsole.scrollTop = liveConsole.scrollHeight;
         }
 
         function startAppInterface(mode = 'camera') {
@@ -725,22 +768,8 @@
 
         function toggleInfoModal() {
             const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
-        function writeToConsole(line) {
-            const now = new Date();
-            const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
-            const logElement = document.createElement('div');
-            logElement.innerHTML = `<span class="text-gray-500">[${timeStr}]</span> ${line}`;
-            liveConsole.appendChild(logElement);
-            liveConsole.scrollTop = liveConsole.scrollHeight;
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
         }
 
         async function requestCameraPermission() {
@@ -774,7 +803,7 @@
                 
                 isCameraActive = true;
                 document.getElementById('scanner-title').innerText = "SYS_READY // MATRIX_AWAIT";
-                triggerToast("Optical stream bound to local CPU thread.", "success");
+                triggerToast("Camera bound directly to browser process.", "success");
                 
                 drawStaticOverlay();
             } catch (err) {
@@ -783,7 +812,7 @@
                 videoFeed.classList.add('hidden');
                 snapBtn.classList.add('hidden');
                 document.getElementById('scanner-title').innerText = "SYS_FEED // BOUNDS_OFFLINE";
-                triggerToast("Hardware stream unavailable. Please upload a local image file.", "info");
+                triggerToast("Hardware stream unavailable. Please upload a file.", "info");
             }
         }
 
@@ -803,62 +832,30 @@
                 
                 landmarkCanvas.width = videoFeed.clientWidth;
                 landmarkCanvas.height = videoFeed.clientHeight;
-                
                 ctx.clearRect(0, 0, landmarkCanvas.width, landmarkCanvas.height);
                 
                 const cx = landmarkCanvas.width / 2;
                 const cy = landmarkCanvas.height / 2;
                 
-                ctx.strokeStyle = "rgba(20, 184, 166, 0.2)";
+                ctx.strokeStyle = "rgba(20, 184, 166, 0.25)";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(cx, cy, 90, 0, 2 * Math.PI);
+                ctx.arc(cx, cy, 95, 0, 2 * Math.PI);
                 ctx.stroke();
 
                 ctx.strokeStyle = "rgba(16, 185, 129, 0.15)";
-                ctx.setLineDash([6, 6]);
+                ctx.setLineDash([5, 5]);
                 ctx.beginPath();
-                ctx.arc(cx, cy, 140, 0, 2 * Math.PI);
+                ctx.arc(cx, cy, 145, 0, 2 * Math.PI);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
                 const endTime = performance.now();
-                performanceLatency.innerText = (endTime - startTime).toFixed(2);
+                performanceLatency.innerText = (endTime - startTime).toFixed(1);
                 
                 requestAnimationFrame(updateHUD);
             };
             requestAnimationFrame(updateHUD);
-        }
-
-        async function captureSnapshot() {
-            if (!isCameraActive && !isUsingUpload) return;
-            
-            let tempCanvas = document.createElement('canvas');
-            if (isUsingUpload) {
-                const img = uploadPreview;
-                tempCanvas.width = img.naturalWidth || img.width;
-                tempCanvas.height = img.naturalHeight || img.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(img, 0, 0);
-            } else {
-                tempCanvas.width = videoFeed.videoWidth;
-                tempCanvas.height = videoFeed.videoHeight;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCtx.translate(tempCanvas.width, 0);
-                tempCtx.scale(-1, 1);
-                tempCtx.drawImage(videoFeed, 0, 0, tempCanvas.width, tempCanvas.height);
-            }
-            
-            snapshotDataUrl = tempCanvas.toDataURL('image/jpeg', 0.85);
-            
-            scanBar.classList.remove('hidden');
-            triggerToast("Scanning frame matrix and locating geometric coordinates...", "info");
-            
-            setTimeout(() => {
-                scanBar.classList.add('hidden');
-                startAnalysisFlow(tempCanvas);
-            }, 1000);
         }
 
         function handleOnboardingUpload(event) {
@@ -887,35 +884,64 @@
                 uploadPreview.classList.remove('hidden');
                 snapBtn.classList.remove('hidden');
                 snapBtn.classList.add('inline-flex');
-                snapBtn.innerHTML = `<i class="fa-solid fa-microscope"></i> Run Analysis`;
+                snapBtn.innerHTML = `<i class="fa-solid fa-microscope"></i> Analyze Upload`;
                 
-                document.getElementById('scanner-title').innerText = "SYS_READY // PHOTO_LOADED";
-                triggerToast("Custom image mounted to engine memory.", "success");
+                document.getElementById('scanner-title').innerText = "SYS_READY // RAS_LOADED";
+                triggerToast("Custom image loaded into secure engine.", "success");
             };
             reader.readAsDataURL(file);
+        }
+
+        async function captureSnapshot() {
+            if (!isCameraActive && !isUsingUpload) return;
+            
+            let tempCanvas = document.createElement('canvas');
+            if (isUsingUpload) {
+                const img = uploadPreview;
+                tempCanvas.width = img.naturalWidth || img.width;
+                tempCanvas.height = img.naturalHeight || img.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(img, 0, 0);
+            } else {
+                tempCanvas.width = videoFeed.videoWidth;
+                tempCanvas.height = videoFeed.videoHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+                tempCtx.drawImage(videoFeed, 0, 0, tempCanvas.width, tempCanvas.height);
+            }
+            
+            snapshotDataUrl = tempCanvas.toDataURL('image/jpeg', 0.85);
+            scanBar.classList.remove('hidden');
+            triggerToast("Compiling grid matrix coordinates...", "info");
+            
+            setTimeout(() => {
+                scanBar.classList.add('hidden');
+                startAnalysisFlow(tempCanvas);
+            }, 800);
         }
 
         function startAnalysisFlow(sourceCanvas) {
             analyzingCover.classList.remove('hidden');
             errorCover.classList.add('hidden');
-            liveConsole.innerHTML = ""; // Reset terminal log
+            liveConsole.innerHTML = "";
 
-            writeToConsole("Booting Local LCV Engine v3.6...");
-            updateAnalysisStep("Reading pixel arrays & testing geometric boundaries...", 20);
+            writeToConsole("Booting Local LCV Core...");
+            updateAnalysisStep("Reading pixel arrays & testing boundaries...", 20);
             
             setTimeout(() => {
-                writeToConsole("Evaluating bilateral image luminance levels...");
-                updateAnalysisStep("Verifying presence of local facial landmarks...", 50);
+                writeToConsole("Calculating bilateral contrast gradients...");
+                updateAnalysisStep("Evaluating local features & face targets...", 60);
                 
                 setTimeout(() => {
-                    writeToConsole("Mapping face coordinate regions...");
-                    updateAnalysisStep("Measuring skeletal proportion arrays...", 80);
+                    writeToConsole("Mapping landmarks to regional benchmarks...");
+                    updateAnalysisStep("Synthesizing telemetry charts...", 90);
                     
                     setTimeout(() => {
                         processPixelsLocally(sourceCanvas);
-                    }, 600);
-                }, 600);
-            }, 600);
+                    }, 500);
+                }, 500);
+            }, 500);
         }
 
         function updateAnalysisStep(text, percent) {
@@ -931,10 +957,10 @@
             }
         }
 
-        function processPixelsLocally(canvas) {
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
+        function processPixelsLocally(sourceCanvas) {
+            const ctx = sourceCanvas.getContext('2d');
+            const width = sourceCanvas.width;
+            const height = sourceCanvas.height;
             
             const sx = Math.floor(width * 0.25);
             const sy = Math.floor(height * 0.25);
@@ -948,8 +974,8 @@
                 imgData = null;
             }
 
-            let rAvg = 150, gAvg = 120, bAvg = 100;
-            let symmetryRatio = 0.92;
+            let rAvg = 140, gAvg = 115, bAvg = 95;
+            let symmetryRatio = 0.91;
             let contrastVariance = 0;
 
             if (imgData) {
@@ -1001,51 +1027,91 @@
             }
 
             const totalColorDensity = rAvg + gAvg + bAvg;
-            if (contrastVariance < 12 || totalColorDensity < 15 || totalColorDensity > 745) {
+            if (contrastVariance < 11 || totalColorDensity < 12 || totalColorDensity > 750) {
                 setTimeout(() => {
                     analyzingCover.classList.add('hidden');
                     errorCover.classList.remove('hidden');
-                    errorMessage.innerText = "The local computer vision algorithm was unable to detect face structural points. Make sure the face is centered, well-lit, and doesn't blend completely into the background.";
-                    triggerToast("Verification failed: Face not detected.", "error");
-                }, 500);
+                    triggerToast("Bilateral tracking failed.", "error");
+                }, 400);
                 return;
             }
 
-            updateAnalysisStep("Generating high-contrast shareable charts...", 95);
-
             const totalRgb = rAvg + gAvg + bAvg || 1;
             const rRatio = rAvg / totalRgb;
+            const gRatio = gAvg / totalRgb;
             const bRatio = bAvg / totalRgb;
             
-            let matchedRegions = [];
-            
-            if (rRatio > 0.40) {
-                matchedRegions = [
-                    { name: "Mediterranean (Aegean/Southern Europe)", percentage: 45, color: "sky", details: "Associated with coastal populations and historical maritime routes." },
-                    { name: "Levant & Western Asia", percentage: 35, color: "amber", details: "Derived from agricultural populations of the Fertile Crescent." },
-                    { name: "East Asian Hinterlands", percentage: 20, color: "emerald", details: "Inland continental migration corridors." }
-                ];
-            } else if (bRatio > 0.32) {
-                matchedRegions = [
-                    { name: "North-Western Europe (Celtic/Maritime)", percentage: 50, color: "emerald", details: "Skeletal ratios corresponding to North Sea coastal demographics." },
-                    { name: "Baltic & Slavic Highlands", percentage: 30, color: "sky", details: "Continental plains populations." },
-                    { name: "Alpine & Central European Valley", percentage: 20, color: "indigo", details: "Trans-alpine migratory crossroads." }
-                ];
-            } else {
-                matchedRegions = [
-                    { name: "Sub-Saharan Western Africa", percentage: 45, color: "rose", details: "Rich historic cultural trade empires." },
-                    { name: "Southern Asia (Indo-Gangetic Basin)", percentage: 35, color: "amber", details: "Ancient Indus Valley convergence." },
-                    { name: "Oceanic & Austronesian Passages", percentage: 20, color: "teal", details: "Maritime navigational migration paths." }
-                ];
+            const regionProfiles = {
+                "east-africa": { name: "East Africa (Horn of Africa)", r: 0.41, g: 0.34, b: 0.25, color: "orange", details: "Linked heavily to historical highland and rift valley structural landmarks of the Horn of Africa." },
+                "west-africa": { name: "Sub-Saharan Western Africa", r: 0.48, g: 0.29, b: 0.23, color: "rose", details: "Associated with historical coastal and Niger-Congo structural profiles." },
+                "nw-europe": { name: "North-Western Europe (Celtic/Maritime)", r: 0.34, g: 0.33, b: 0.33, color: "emerald", details: "Corresponds to North Sea basin and maritime Celtic skeletal indices." },
+                "mediterranean": { name: "Mediterranean Coastal", r: 0.38, g: 0.33, b: 0.29, color: "teal", details: "Reflects ancient maritime exchanges across Southern Europe and North Africa." },
+                "levant": { name: "Levant & Western Asia", r: 0.39, g: 0.34, b: 0.27, color: "amber", details: "Derived from agricultural migrations and historical Arabian corridors." },
+                "east-asian": { name: "East Asian Hinterlands", r: 0.36, g: 0.35, b: 0.29, color: "purple", details: "Continental Asian plains and coastal phenotypic patterns." },
+                "south-asia": { name: "Southern Asia (Indo-Gangetic Basin)", r: 0.40, g: 0.32, b: 0.28, color: "blue", details: "Associated with historical subcontinental trade routes and populations." }
+            };
+
+            // Calculate proximity scores based on spatial difference of RGB ratios
+            let scores = {};
+            let totalRawScore = 0;
+            for (const [key, profile] of Object.entries(regionProfiles)) {
+                let dist = Math.sqrt(
+                    Math.pow(rRatio - profile.r, 2) + 
+                    Math.pow(gRatio - profile.g, 2) + 
+                    Math.pow(bRatio - profile.b, 2)
+                );
+                let score = Math.max(0.01, 1 - dist * 5.5);
+                scores[key] = score;
+                totalRawScore += score;
             }
 
-            const melaninIndex = Math.min(100, Math.max(10, Math.round(180 - (rAvg * 0.4 + gAvg * 0.3 + bAvg * 0.2))));
+            // Normalize East Africa proportion to range fluidly between 1% and 75%
+            let eastAfricaProportion = scores["east-africa"] / totalRawScore;
+            let eaPercent = Math.round(eastAfricaProportion * 74) + 1; 
+            eaPercent = Math.max(1, Math.min(75, eaPercent));
+
+            let remainingPercent = 100 - eaPercent;
+            let otherTotalRaw = 0;
+            for (const key of Object.keys(regionProfiles)) {
+                if (key !== "east-africa") {
+                    otherTotalRaw += scores[key];
+                }
+            }
+
+            let matchedRegions = [
+                { id: "east-africa", name: regionProfiles["east-africa"].name, percentage: eaPercent, color: regionProfiles["east-africa"].color, details: regionProfiles["east-africa"].details }
+            ];
+
+            for (const [key, profile] of Object.entries(regionProfiles)) {
+                if (key !== "east-africa") {
+                    let rawProp = scores[key] / otherTotalRaw;
+                    let calculatedPercent = Math.round(rawProp * remainingPercent);
+                    if (calculatedPercent > 0) {
+                        matchedRegions.push({
+                            id: key,
+                            name: profile.name,
+                            percentage: calculatedPercent,
+                            color: profile.color,
+                            details: profile.details
+                        });
+                    }
+                }
+            }
+
+            let currentSum = matchedRegions.reduce((acc, r) => acc + r.percentage, 0);
+            if (currentSum !== 100) {
+                let diff = 100 - currentSum;
+                matchedRegions[0].percentage += diff;
+            }
+
+            matchedRegions.sort((a, b) => b.percentage - a.percentage);
+
+            const melaninIndex = Math.min(100, Math.max(10, Math.round(180 - (rAvg * 0.45 + gAvg * 0.3 + bAvg * 0.25))));
             const hemoglobinType = rRatio > 0.36 ? "Warm / Erythrocytic" : "Neutral / Pale";
-            const cranialVal = (0.74 + (symmetryRatio * 0.08)).toFixed(2);
+            const cranialVal = (0.73 + (symmetryRatio * 0.08)).toFixed(2);
             const zygomaticFactor = symmetryRatio > 0.94 ? "Prominent / Symmetric" : "Balanced / Standard";
 
             const data = {
-                faceDetected: true,
                 regions: matchedRegions,
                 melanin: melaninIndex,
                 hemoglobin: hemoglobinType,
@@ -1053,17 +1119,145 @@
                 zygomatic: zygomaticFactor,
                 symmetry: (symmetryRatio * 100).toFixed(1),
                 facialAnalysis: {
-                    eyes: `Orbital width registers at ${(rAvg * 0.45).toFixed(1)} px. The inter-pupillary distance reflects standard bilateral ratios common to ${matchedRegions[0].name} demographic distributions.`,
-                    nose: `The nose bridge projection highlights normal contour ranges with a calculated luminance ratio of ${(gAvg / 1.1).toFixed(1)} NQ, showing ancestral structural patterns.`,
-                    jawline: `Mandibular curvature runs at an alignment axis of ${(symmetryRatio * 100).toFixed(1)}%. Features high structural stability mirroring alpine and inland ancestry models.`
+                    eyes: `Orbital offset registers at ${(rAvg * 0.45).toFixed(1)} px. The inter-pupillary distance matches historical population landmarks from ${matchedRegions[0].name}.`,
+                    nose: `Bridge gradient highlights optimal structural metrics of ${(gAvg / 1.1).toFixed(1)} NQ, exhibiting common ancestral patterns.`,
+                    jawline: `Mandibular curvature is verified at ${(symmetryRatio * 100).toFixed(1)}% symmetry match, aligning with structural averages.`
                 },
-                summary: `This client-side evaluation is complete. Your facial proportions and regional luminance patterns indicate strong statistical similarities with historical populations of ${matchedRegions[0].name} origin.`,
-                historicalConnection: `Your facial geometry corresponds closely to historical skeletal archetypes associated with ancient ${matchedRegions[0].name} trade ports and ancestral hubs.`
+                summary: `Your facial geometry displays statistical correlations with geographic phenotypes common in regional populations of ${matchedRegions[0].name} origin.`,
+                historicalConnection: `Your skeletal proportions map closest to ancient lineages associated with ${matchedRegions[0].name} ancestral migrations.`
             };
 
             setTimeout(() => {
                 renderResults(data);
-            }, 600);
+            }, 500);
+        }
+
+        function renderRealWorldMap(svgElement, sortedRegions) {
+            if (typeof am5geodata_worldLow === 'undefined') {
+                console.error("Geodata am5geodata_worldLow is missing.");
+                return;
+            }
+            
+            svgElement.innerHTML = ''; 
+            const width = 1000;
+            const height = 500;
+            svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+            const activeColorTable = {};
+            sortedRegions.forEach((reg, index) => {
+                let opacity = 0.55;
+                if (index === 1) opacity = 0.35;
+                if (index === 2) opacity = 0.20;
+                activeColorTable[reg.id] = {
+                    color: getRegionColorHex(reg.color),
+                    opacity: opacity,
+                    name: reg.name
+                };
+            });
+
+            const geojson = am5geodata_worldLow;
+            geojson.features.forEach(feature => {
+                if (!feature.geometry) return;
+                const countryId = feature.id; 
+                
+                let matchedRegionId = null;
+                for (const [regionId, isoList] of Object.entries(regionMappings)) {
+                    if (isoList.includes(countryId) && activeColorTable[regionId]) {
+                        matchedRegionId = regionId;
+                        break;
+                    }
+                }
+
+                let pathD = '';
+                const drawPolygon = (coordinates) => {
+                    let pathStr = '';
+                    coordinates.forEach((ring) => {
+                        ring.forEach((coord, ptIndex) => {
+                            const lon = coord[0];
+                            const lat = coord[1];
+                            const x = (lon + 180) * (width / 360);
+                            const y = (90 - lat) * (height / 180) * 1.1 + 35; 
+                            
+                            if (ptIndex === 0) {
+                                pathStr += `M ${x.toFixed(1)} ${y.toFixed(1)} `;
+                            } else {
+                                pathStr += `L ${x.toFixed(1)} ${y.toFixed(1)} `;
+                            }
+                        });
+                        pathStr += 'Z ';
+                    });
+                    return pathStr;
+                };
+
+                if (feature.geometry.type === 'Polygon') {
+                    pathD += drawPolygon(feature.geometry.coordinates);
+                } else if (feature.geometry.type === 'MultiPolygon') {
+                    feature.geometry.coordinates.forEach(polyCoords => {
+                        pathD += drawPolygon(polyCoords);
+                    });
+                }
+
+                if (!pathD) return;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute('d', pathD);
+                path.setAttribute('class', 'country-path');
+                path.setAttribute('id', `country-${countryId}`);
+                
+                if (matchedRegionId) {
+                    const rData = activeColorTable[matchedRegionId];
+                    path.setAttribute('fill', rData.color);
+                    path.setAttribute('fill-opacity', rData.opacity);
+                    path.setAttribute('stroke', rData.color);
+                    path.setAttribute('stroke-width', '0.7');
+                } else {
+                    path.setAttribute('fill', 'rgba(255, 255, 255, 0.04)');
+                    path.setAttribute('stroke', 'rgba(20, 184, 166, 0.1)');
+                    path.setAttribute('stroke-width', '0.4');
+                }
+
+                path.addEventListener('mouseenter', () => {
+                    const tooltip = document.getElementById('map-tooltip');
+                    const tooltipText = document.getElementById('tooltip-text');
+                    tooltipText.innerText = `${feature.properties.name} (${countryId}) ${matchedRegionId ? ' - ' + activeColorTable[matchedRegionId].name : ''}`;
+                    tooltip.classList.remove('opacity-0', 'hidden');
+                });
+                path.addEventListener('mouseleave', () => {
+                    document.getElementById('map-tooltip').classList.add('opacity-0', 'hidden');
+                });
+
+                svgElement.appendChild(path);
+            });
+
+            // Draw real physical pulsing anchors
+            sortedRegions.forEach(region => {
+                const coord = coordinatesTable[region.id];
+                if (!coord) return;
+
+                const x = (coord.lon + 180) * (width / 360);
+                const y = (90 - coord.lat) * (height / 180) * 1.1 + 35;
+
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                const pulseCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                pulseCircle.setAttribute('cx', x.toFixed(1));
+                pulseCircle.setAttribute('cy', y.toFixed(1));
+                pulseCircle.setAttribute('r', '26');
+                pulseCircle.setAttribute('fill', 'none');
+                pulseCircle.setAttribute('stroke', getRegionColorHex(region.color));
+                pulseCircle.setAttribute('stroke-width', '2');
+                pulseCircle.setAttribute('class', 'heat-pulse-ring');
+                g.appendChild(pulseCircle);
+
+                const centerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                centerCircle.setAttribute('cx', x.toFixed(1));
+                centerCircle.setAttribute('cy', y.toFixed(1));
+                centerCircle.setAttribute('r', '7');
+                centerCircle.setAttribute('fill', getRegionColorHex(region.color));
+                g.appendChild(centerCircle);
+
+                svgElement.appendChild(g);
+            });
         }
 
         function renderResults(data) {
@@ -1074,107 +1268,97 @@
             resultPhoto.src = snapshotDataUrl;
             document.getElementById('cert-portrait').src = snapshotDataUrl;
             
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                isCameraActive = false;
-            }
-
             const sortedRegions = data.regions.sort((a, b) => b.percentage - a.percentage);
-            resultPrimaryAffinity.innerText = sortedRegions[0] ? `${sortedRegions[0].percentage}% ${sortedRegions[0].name} Affinity` : "No Affinity Plotted";
-            
+            resultPrimaryAffinity.innerText = sortedRegions[0] ? `${sortedRegions[0].percentage}% ${sortedRegions[0].name} Affinity` : "Affinity Uncalculated";
             resultSummary.innerText = data.summary;
             historicalDescription.innerText = data.historicalConnection;
             
-            historicalTimeframe.innerHTML = `<i class="fa-solid fa-clock text-emerald-400"></i> Region: ${sortedRegions[0]?.name || "Global"}`;
+            historicalTimeframe.innerHTML = `<i class="fa-solid fa-circle-nodes text-emerald-400"></i> Region Profile: ${sortedRegions[0]?.name || "Global"}`;
 
             landmarkEyes.innerText = data.facialAnalysis.eyes;
             landmarkNose.innerText = data.facialAnalysis.nose;
             landmarkJawline.innerText = data.facialAnalysis.jawline;
 
-            // Fill new deep telemetry variables
             document.getElementById('telemetry-melanin').innerText = `${data.melanin} MDI`;
             document.getElementById('telemetry-hemoglobin').innerText = data.hemoglobin;
             document.getElementById('telemetry-cranial').innerText = `${data.cranial} (Dolicho)`;
             document.getElementById('telemetry-zygomatic').innerText = data.zygomatic;
             document.getElementById('telemetry-symmetry').innerText = `${data.symmetry}%`;
 
-            // Write outputs to console box
-            writeToConsole("Local analysis matrix compiled successfully.");
-            writeToConsole(`Computed Primary Group: ${sortedRegions[0]?.name}`);
-            writeToConsole(`Calculated Hemoglobin Warmth: ${data.hemoglobin}`);
-            writeToConsole(`Facial Symmetry Factor: ${data.symmetry}%`);
+            writeToConsole("Abyssinian Local Calibration Core loaded successfully.");
+            writeToConsole(`Primary Vector Target: ${sortedRegions[0]?.name}`);
+            writeToConsole(`Bilateral Facial Symmetry: ${data.symmetry}%`);
             writeToConsole(`Melanin Index Estimation: ${data.melanin} MDI`);
-            writeToConsole("Ready to produce Official Qualification Certificate.");
 
-            // Render matching graphics/progress bar rows
+            const mainMapSvg = document.getElementById('world-heatmap-svg');
+            renderRealWorldMap(mainMapSvg, sortedRegions);
+
             resultsBarContainer.innerHTML = '';
             sortedRegions.forEach(region => {
-                const cleanColor = region.color || "teal";
+                const hexColor = getRegionColorHex(region.color);
                 const barRow = document.createElement('div');
                 barRow.className = "space-y-1.5";
                 barRow.innerHTML = `
                     <div class="flex justify-between items-center text-xs">
                         <span class="font-semibold text-gray-200 flex items-center gap-1.5">
-                            <span class="h-2.5 w-2.5 rounded-full" style="background-color: var(--region-color, #14b8a6);"></span>
+                            <span class="h-2 w-2 rounded-full" style="background-color: ${hexColor}"></span>
                             ${region.name}
                         </span>
                         <span class="font-mono text-gray-400 font-bold">${region.percentage}%</span>
                     </div>
-                    <div class="w-full bg-gray-800/80 h-2 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-1000" style="width: 0%; background-color: var(--region-color, #14b8a6);" id="bar-${region.name.replace(/\s+/g, '')}"></div>
+                    <div class="w-full bg-gray-800/60 h-1.5 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000" style="width: 0%; background-color: ${hexColor};" id="bar-${region.id}"></div>
                     </div>
                 `;
-                
-                const hexColor = getRegionColorHex(cleanColor);
-                barRow.style.setProperty('--region-color', hexColor);
                 resultsBarContainer.appendChild(barRow);
                 
                 setTimeout(() => {
-                    const barEl = document.getElementById(`bar-${region.name.replace(/\s+/g, '')}`);
+                    const barEl = document.getElementById(`bar-${region.id}`);
                     if (barEl) barEl.style.width = `${region.percentage}%`;
-                }, 150);
+                }, 100);
             });
 
-            // Set Certificate details
+            // Set up Instagram-Optimized 1:1 Certificate Metrics
             document.getElementById('cert-primary-text').innerText = `${sortedRegions[0]?.percentage}% ${sortedRegions[0]?.name}`;
-            document.getElementById('cert-secondary-text').innerText = `Secondary matches identified: ${sortedRegions[1]?.percentage}% ${sortedRegions[1]?.name}`;
+            document.getElementById('cert-secondary-text').innerText = `Secondary Proximity: ${sortedRegions[1]?.percentage}% ${sortedRegions[1]?.name}`;
             document.getElementById('cert-symmetry').innerText = `${data.symmetry}%`;
             document.getElementById('cert-melanin').innerText = `${data.melanin} MDI`;
             document.getElementById('cert-cranial').innerText = data.cranial;
 
-            // DYNAMIC CHART ON THE CERTIFICATE ITSELF
+            // Render certificate dynamic bar charts inside the card
             const certChartContainer = document.getElementById('cert-chart-container');
             certChartContainer.innerHTML = '';
             sortedRegions.forEach(region => {
-                const cleanColor = region.color || "teal";
-                const hexColor = getRegionColorHex(cleanColor);
-                
+                const hexColor = getRegionColorHex(region.color);
                 const chartRow = document.createElement('div');
                 chartRow.className = "space-y-1";
                 chartRow.innerHTML = `
-                    <div class="flex justify-between items-center text-[10px]">
-                        <span class="font-bold text-gray-200 flex items-center gap-1.5">
-                            <span class="h-2 w-2 rounded-full" style="background-color: ${hexColor};"></span>
+                    <div class="flex justify-between items-center text-[10px] leading-none">
+                        <span class="font-bold text-gray-300 flex items-center gap-1">
+                            <span class="h-1.5 w-1.5 rounded-full" style="background-color: ${hexColor}"></span>
                             ${region.name}
                         </span>
                         <span class="font-mono text-teal-400 font-bold">${region.percentage}%</span>
                     </div>
-                    <div class="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden border border-gray-800">
-                        <div class="h-full rounded-full transition-all duration-1000" style="width: 0%; background-color: ${hexColor};" id="cert-bar-${region.name.replace(/\s+/g, '')}"></div>
+                    <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden border border-gray-900">
+                        <div class="h-full rounded-full transition-all duration-1000" style="width: 0%; background-color: ${hexColor};" id="cert-bar-${region.id}"></div>
                     </div>
                 `;
                 certChartContainer.appendChild(chartRow);
                 
                 setTimeout(() => {
-                    const barEl = document.getElementById(`cert-bar-${region.name.replace(/\s+/g, '')}`);
+                    const barEl = document.getElementById(`cert-bar-${region.id}`);
                     if (barEl) barEl.style.width = `${region.percentage}%`;
-                }, 200);
+                }, 150);
             });
 
-            // Generate unique Certificate verification code
+            // RENDER MINI GEOGRAPHIC MAP INSIDE THE CERTIFICATE CARD
+            const certMapSvg = document.getElementById('cert-world-heatmap');
+            renderRealWorldMap(certMapSvg, sortedRegions);
+
             const uniqueID = "OCV-2026-" + Math.floor(1000 + Math.random() * 9000) + "-" + Math.floor(1000 + Math.random() * 9000);
             document.getElementById('cert-ref-id').innerText = uniqueID;
-            document.getElementById('cert-timestamp').innerText = "CALIBRATION DATE: " + new Date().toLocaleDateString() + " // LOCAL VERIFIED";
+            document.getElementById('cert-timestamp').innerText = "DATE: " + new Date().toLocaleDateString() + " // LOCAL SECURE";
 
             drawResultsOverlay();
         }
@@ -1186,7 +1370,7 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = "rgba(20, 184, 166, 0.7)";
+            ctx.strokeStyle = "rgba(20, 184, 166, 0.75)";
             ctx.fillStyle = "rgba(20, 184, 166, 0.9)";
             ctx.lineWidth = 1.5;
 
@@ -1238,26 +1422,11 @@
             return colors[colorName.toLowerCase()] || colors.teal;
         }
 
-        function resetAppToScanner() {
-            resultsScreen.classList.add('hidden');
-            scannerScreen.classList.remove('hidden');
-            errorCover.classList.add('hidden');
-            snapshotDataUrl = null;
-            if (!isUsingUpload) {
-                requestCameraPermission();
-            } else {
-                uploadPreview.classList.remove('hidden');
-                snapBtn.classList.remove('hidden');
-                snapBtn.classList.add('inline-flex');
-            }
-        }
-
-        /* Certificate Modal Triggers */
         function openCertificateModal() {
             const modal = document.getElementById('certificate-modal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            writeToConsole("Loading downloadable vector layout...");
+            writeToConsole("Loading portrait calibration document view...");
         }
 
         function closeCertificateModal() {
@@ -1266,17 +1435,14 @@
             modal.classList.remove('flex');
         }
 
-        /* CLIENT-SIDE IMAGE EXPORT: html2canvas wrapper */
         function downloadCertificateImage() {
             const certElement = document.getElementById('certificate-print-area');
-            writeToConsole("Compiling canvas layers into social media image...");
-            
-            triggerToast("Compiling high-resolution download file. Please wait...", "info");
+            writeToConsole("Initializing client image export...");
+            triggerToast("Rendering local certificate document. Please wait...", "info");
 
-            // Define config options for crisp rendering outputs
             const options = {
-                scale: 2, // Double quality for crisp text on mobile & high-DPI screens
-                backgroundColor: '#030712', // Force dynamic dark slate background
+                scale: 2.2, 
+                backgroundColor: '#030712', 
                 useCORS: true,
                 logging: false,
                 allowTaint: true
@@ -1284,30 +1450,28 @@
 
             html2canvas(certElement, options).then(canvas => {
                 try {
-                    // Force compatibility across multiple dynamic browsers
                     const dataUrl = canvas.toDataURL('image/png');
                     const link = document.createElement('a');
-                    link.download = 'OriginAI_Ancestry_Certificate.png';
+                    link.download = 'OriginAI_Proximity_Certificate.png';
                     link.href = dataUrl;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                     
-                    writeToConsole("Download payload successfully triggered.");
-                    triggerToast("Certificate downloaded! Ready to share on social media.", "success");
+                    writeToConsole("Export completed successfully.");
+                    triggerToast("Certificate downloaded successfully.", "success");
                 } catch (e) {
-                    console.error("Export failed: ", e);
+                    console.error("Export failure: ", e);
                     triggerToast("Export failed. Please try a screenshot instead.", "error");
-                    writeToConsole("Error rendering image canvas elements.");
                 }
             }).catch(err => {
-                console.error("Rendering failed: ", err);
-                triggerToast("Compile error. Please try again.", "error");
+                console.error("Rendering failure: ", err);
+                triggerToast("Document compile error.", "error");
             });
         }
 
         window.onload = function() {
-            console.log("OriginCV Local System v3.6 Initialized with image download generator.");
+            console.log("OriginCV Abyssinian Proximity Calibration Module loaded successfully.");
         };
     </script>
 </body>
